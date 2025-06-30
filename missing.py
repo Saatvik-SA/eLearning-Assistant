@@ -16,8 +16,8 @@ for pkg in required_packages:
         missing_packages.append(pkg)
 
 if missing_packages:
-    print("❌ Missing packages:")
+    print("Missing packages:")
     for pkg in missing_packages:
         print(" -", pkg)
 else:
-    print("✅ All packages are installed!")
+    print("All packages are installed!")
