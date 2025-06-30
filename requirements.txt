@@ -1,0 +1,14 @@
+pymupdf
+chromadb
+keybert
+sentence-transformers
+fpdf
+prettytable
+langchain
+langchain_experimental
+pandas
+langgraph
+langchain-google-genai
+google-generativeai
+reportlab
+python-dotenv
