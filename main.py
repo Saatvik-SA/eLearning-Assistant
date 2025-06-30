@@ -136,7 +136,7 @@ def run_agentic_action(user_input, collection, embedder, total_chunks):
 
 # === Main Runner ===
 if __name__ == "__main__":
-    print("Upload academic PDFs to begin.")
+    print("Upload academic PDFs to begin")
     upload_pdfs()
 
     chunks = load_and_chunk_pdfs()
