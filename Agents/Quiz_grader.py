@@ -46,7 +46,7 @@ Now grade each question and return:
     graded_output = llm.invoke(formatted_prompt)
     return graded_output.content
 
-def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Report.pdf"):
+def export_graded_report_to_pdf(graded_text: str, filename="Data/Output/Student_Graded_Report.pdf"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
