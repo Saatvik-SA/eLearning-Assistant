@@ -13,6 +13,10 @@ from Agents.Quiz_grader import run_grader, export_graded_report_to_pdf
 from Agents.AnswerKey import run_answer_key_generator
 from Agents.Rag_chat import run_rag_chat
 from Agents.Feedback_agent import run_feedback_agent
+from Agents.Rescue_agent import run_rescue_agent
+
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate
 
 # === Load API Key ===
 load_dotenv()
@@ -70,15 +74,38 @@ def embed_and_store_chunks(chunks):
     return get_chromadb_collection(), embedder
 
 
+# === Intent Classifier using Gemini ===
+def classify_intent(user_input):
+    prompt = ChatPromptTemplate.from_template("""
+You are a task classifier for an eLearning assistant.
+Given a user's message, classify it into one of the following intent labels:
+- study_plan
+- generate_quiz
+- grade_answers
+- generate_answer_key
+- generate_feedback
+- generate_revision_kit
+- ask_question
+
+Only return the intent label.
+
+Message: {user_input}
+""")
+
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    result = llm.invoke(prompt.format_messages(user_input=user_input))
+    return result.content.strip().lower()
+
+
 # === Intent-based Router ===
 def agentic_router(user_input):
-    user_input = user_input.lower()
-
     chunks = load_and_chunk_pdfs()
     total_chunks = len(chunks)
     collection, embedder = embed_and_store_chunks(chunks)
 
-    if "study plan" in user_input or "planner" in user_input:
+    intent = classify_intent(user_input)
+
+    if intent == "study_plan":
         weeks = None
         for word in user_input.split():
             if word.isdigit():
@@ -89,11 +116,11 @@ def agentic_router(user_input):
         plan = run_study_planner(collection, total_chunks, weeks)
         export_study_plan_to_excel(plan, filename="Data/Output/study_plan.xlsx")
 
-    elif "quiz" in user_input:
+    elif intent == "generate_quiz":
         quiz = run_quiz_generator(collection, total_chunks)
         export_quiz_to_pdf(quiz, filename="Data/Output/Generated_Quiz.pdf")
 
-    elif "grade" in user_input or "mark" in user_input:
+    elif intent == "grade_answers":
         student_pdf = select_pdf_file("Select student answer sheet PDF")
         quiz = run_quiz_generator(collection, total_chunks)
         graded = run_grader(quiz, student_pdf)
@@ -108,18 +135,24 @@ def agentic_router(user_input):
             run_feedback_agent(graded, filename=feedback_path)
             print(f"Feedback report saved to: {feedback_path}")
 
-    elif "answer key" in user_input:
+    elif intent == "generate_answer_key":
         quiz = run_quiz_generator(collection, total_chunks)
         run_answer_key_generator(quiz, filename="Data/Output/Answer_Key.pdf")
 
-    elif "feedback" in user_input:
+    elif intent == "generate_feedback":
         graded_file = select_pdf_file("Select Graded Report to generate Feedback")
         with open(graded_file, "r") as f:
             graded_text = f.read()
         run_feedback_agent(graded_text, filename="Data/Output/Student_Feedback_Report.pdf")
 
-    else:
+    elif intent == "generate_revision_kit":
+        run_rescue_agent(collection, total_chunks, filename="Data/Output/Revision_Kit.pdf")
+
+    elif intent == "ask_question":
         run_rag_chat(embedder, collection)
+
+    else:
+        print("Sorry, I couldn't understand that task.")
 
 
 # === Entry ===
@@ -128,7 +161,7 @@ if __name__ == "__main__":
     upload_pdfs()
 
     print("\neLearning Assistant is ready!")
-    print("Ask me to do something (e.g., 'create study plan', 'grade answers', 'generate quiz', 'give answer key', 'feedback' or ask a question)\n")
+    print("You can now type a request.\n")
 
     while True:
         user_input = input("You: ").strip()
