@@ -2,6 +2,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from fpdf import FPDF
 import fitz
+import os
+from Agents.Feedback_agent import run_feedback_agent
+
 
 def extract_text_from_pdf(pdf_path):
     with fitz.open(pdf_path) as doc:
@@ -9,6 +12,7 @@ def extract_text_from_pdf(pdf_path):
         for page in doc:
             text += page.get_text()
     return text.strip()
+
 
 def run_grader(quiz_text: str, student_pdf_path: str):
     student_answer_text = extract_text_from_pdf(student_pdf_path)
@@ -46,14 +50,32 @@ Now grade each question and return:
     graded_output = llm.invoke(formatted_prompt)
     return graded_output.content
 
-def export_graded_report_to_pdf(graded_text: str, filename="Data/Output/Student_Graded_Report.pdf"):
+
+def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Report.pdf"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
 
     for line in graded_text.strip().split("\n"):
-        pdf.multi_cell(0, 10, line)
+        pdf.multi_cell(0, 10, txt=line.encode('latin-1', 'replace').decode('latin-1'))
 
     pdf.output(filename)
     print(f"Graded report exported: {filename}")
+
+
+def batch_grade_all_answers(quiz_text: str, answers_folder="Data/Answers"):
+    for file in os.listdir(answers_folder):
+        if file.endswith(".pdf"):
+            file_path = os.path.join(answers_folder, file)
+            graded = run_grader(quiz_text, file_path)
+
+            output_path = os.path.join("Data/Output", file.replace(".pdf", "_Graded.pdf"))
+            export_graded_report_to_pdf(graded, filename=output_path)
+            print(f"Graded: {file} → {output_path}")
+
+            choice = input(f"Generate feedback for {file}? (yes/no): ").strip().lower()
+            if choice in {"yes", "y"}:
+                feedback_path = os.path.join("Data/Output", file.replace(".pdf", "_Feedback.txt"))
+                run_feedback_agent(graded, filename=feedback_path)
+                print(f"Feedback saved to: {feedback_path}")
