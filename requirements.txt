@@ -12,8 +12,3 @@ langchain-google-genai
 google-generativeai
 reportlab
 python-dotenv
-pywhatkit
-openpyxl
-twilio
-smtplib
-email
