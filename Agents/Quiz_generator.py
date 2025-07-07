@@ -1,4 +1,4 @@
-# --- File: Agents/Quiz_generator.py ---
+# --- Agents/Quiz_generator.py ---
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -7,6 +7,10 @@ from datetime import datetime
 import os
 
 def run_quiz_generator(collection, total_chunks, num_mcq=3, num_short=2, num_long=2, num_fill=2, num_tf=2, difficulty=None):
+    """
+    Uses academic content from ChromaDB to generate a custom quiz.
+    Allows controlling difficulty and question counts.
+    """
     results = collection.get(include=["documents"])
     all_chunks = results['documents']
     context = "\n\n".join(all_chunks[:total_chunks])
@@ -23,9 +27,11 @@ Using ONLY the context provided, generate a quiz with:
 - {num_fill} Fill in the blanks (1 mark each)
 - {num_tf} True/False (1 mark each)
 
-Make the questions clear, educational, and well-structured. Format output with section titles like:
+Make the questions clear, educational, and well-structured.
+Format output with section titles like:
 "Section: MCQs", "Section: Short Answer Questions", etc.
 {difficulty_prompt}
+
 ---
 Context:
 {{context}}
@@ -38,6 +44,9 @@ Context:
     return response.content
 
 def export_quiz_to_pdf(quiz_text, filename=None):
+    """
+    Exports the generated quiz text into a PDF.
+    """
     if not filename:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"Data/Output/Generated_Quiz_{timestamp}.pdf"
@@ -54,4 +63,3 @@ def export_quiz_to_pdf(quiz_text, filename=None):
 
     pdf.output(filename)
     print(f"Quiz saved as {filename}")
-

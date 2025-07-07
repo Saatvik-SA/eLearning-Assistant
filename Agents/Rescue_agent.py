@@ -1,14 +1,20 @@
+# --- Agents/Rescue_agent.py ---
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from fpdf import FPDF
+import os
 
 def run_rescue_agent(collection, total_chunks, filename="Data/Output/Revision_Kit.pdf"):
-    # Get the top chunks
+    """
+    Generates a 1-page revision kit based on academic content chunks.
+    """
+    # Retrieve the top N chunks from the collection
     results = collection.get(include=["documents"])
     all_chunks = results['documents']
     context = "\n\n".join(all_chunks[:total_chunks])
 
-    # Prompt for last-minute summary
+    # Build the prompt
     prompt = ChatPromptTemplate.from_template("""
 You are a last-minute exam preparation assistant.
 
@@ -29,9 +35,13 @@ Structure the output clearly for fast revision.
     result = llm.invoke(formatted).content
 
     export_rescue_kit_to_pdf(result, filename)
-    print(f"Revision Kit saved to: {filename}")
 
 def export_rescue_kit_to_pdf(text, filename="Data/Output/Revision_Kit.pdf"):
+    """
+    Exports the revision kit to a well-formatted PDF.
+    """
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -41,3 +51,4 @@ def export_rescue_kit_to_pdf(text, filename="Data/Output/Revision_Kit.pdf"):
         pdf.multi_cell(0, 10, line)
 
     pdf.output(filename)
+    print(f"Revision Kit saved to: {filename}")

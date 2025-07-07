@@ -1,57 +1,64 @@
+# --- Agents/Quiz_grader.py ---
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from fpdf import FPDF
 import fitz
 import os
+
+from Utilities.PDF import extract_text_from_pdf_path
+from Utilities.Embeddings import get_query_embedding
+from Utilities.ChromaDB import query_chromadb_for_context
 from Agents.Feedback_agent import run_feedback_agent
 
 
-def extract_text_from_pdf(pdf_path):
-    with fitz.open(pdf_path) as doc:
-        text = ""
-        for page in doc:
-            text += page.get_text()
-    return text.strip()
+def run_grader(student_pdf_path: str):
+    """
+    Grades the student's answer sheet by retrieving relevant academic context from ChromaDB.
+    No fixed quiz required.
+    """
+    student_answer_text = extract_text_from_pdf_path(student_pdf_path)
 
+    # Get relevant context from ChromaDB
+    student_embedding = get_query_embedding(student_answer_text)
+    academic_context = query_chromadb_for_context(student_embedding)
 
-def run_grader(quiz_text: str, student_pdf_path: str):
-    student_answer_text = extract_text_from_pdf(student_pdf_path)
-
+    # Prompt to evaluate answer based on context
     prompt = ChatPromptTemplate.from_template("""
-You are an academic evaluator agent.
+You are an academic evaluator assistant.
 
-Given the quiz questions and a student's answer sheet, assign marks to each question. Follow these rules:
-- For MCQs, True/False, and Fill-in-the-blanks, expect exact answers (1 mark each).
-- For short/long answers, award marks if the intent is correct and key concepts/terms are present.
-- Include the correct answer, the student's answer, marks given, and a brief explanation.
+Evaluate the student's answers based on the academic content provided below.
+Give marks if the answers demonstrate correct understanding, reasoning, and relevant facts.
 
---- QUIZ QUESTIONS ---
-{quiz}
+Return:
+1. A question-by-question breakdown (infer questions from student answers)
+2. Marks per question
+3. Total Score
+4. Final feedback summary
+
+--- ACADEMIC CONTEXT (SOURCE MATERIAL) ---
+{context}
 
 --- STUDENT ANSWERS ---
 {student_answers}
-
-Now grade each question and return:
-1. A question-by-question breakdown with:
-   - Question
-   - Correct Answer
-   - Student Answer
-   - Marks Awarded
-   - Explanation
-2. Total Score
 """)
 
-    formatted_prompt = prompt.format_messages(
-        quiz=quiz_text,
+    formatted = prompt.format_messages(
+        context=academic_context,
         student_answers=student_answer_text
     )
 
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
-    graded_output = llm.invoke(formatted_prompt)
+    graded_output = llm.invoke(formatted)
     return graded_output.content
 
 
 def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Report.pdf"):
+    """
+    Saves graded report to PDF.
+    """
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -64,11 +71,14 @@ def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Repor
     print(f"Graded report exported: {filename}")
 
 
-def batch_grade_all_answers(quiz_text: str, answers_folder="Data/Answers"):
+def batch_grade_all_answers(answers_folder="Data/Answers"):
+    """
+    Grades all answer PDFs in a folder using content from ChromaDB.
+    """
     for file in os.listdir(answers_folder):
         if file.endswith(".pdf"):
             file_path = os.path.join(answers_folder, file)
-            graded = run_grader(quiz_text, file_path)
+            graded = run_grader(file_path)
 
             output_path = os.path.join("Data/Output", file.replace(".pdf", "_Graded.pdf"))
             export_graded_report_to_pdf(graded, filename=output_path)

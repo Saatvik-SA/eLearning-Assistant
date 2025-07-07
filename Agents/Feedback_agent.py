@@ -1,8 +1,14 @@
+# --- Agents/Feedback_agent.py ---
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from fpdf import FPDF
+import os
 
 def run_feedback_agent(graded_text, filename="Data/Output/Student_Feedback_Report.pdf"):
+    """
+    Generates detailed, motivational feedback from a graded report.
+    """
     prompt = ChatPromptTemplate.from_template("""
 You are a helpful feedback assistant for students.
 
@@ -23,6 +29,11 @@ Given a graded quiz report, do the following:
     export_feedback_to_pdf(feedback, filename)
 
 def export_feedback_to_pdf(feedback_text, filename="Data/Output/Student_Feedback_Report.pdf"):
+    """
+    Saves feedback to a well-formatted PDF.
+    """
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)

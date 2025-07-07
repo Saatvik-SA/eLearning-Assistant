@@ -1,39 +1,40 @@
+# --- Agents/Rag_chat.py ---
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+from Utilities.Embeddings import get_query_embedding
+from Utilities.ChromaDB import query_chromadb_for_context
 
 def run_rag_chat(embedder, collection):
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    """
+    RAG-powered chatbot: enriches user queries with document-relevant context and responds via Gemini.
+    """
+    print("\nEnter your academic question (or type 'exit' to quit):")
+    
+    while True:
+        query = input("Ask: ").strip()
+        if query.lower() in {"exit", "quit"}:
+            print("Exiting RAG chat.")
+            break
 
-    prompt = ChatPromptTemplate.from_template("""
-You are a helpful academic assistant. You must answer clearly and accurately using only the context provided.
+        query_embedding = get_query_embedding(query)
+        context = query_chromadb_for_context(query_embedding)
 
-If the context does not contain the answer, say: "I could not find a reliable answer based on the material provided."
+        prompt = ChatPromptTemplate.from_template("""
+You are a helpful academic assistant.
 
----
-Context:
+Based only on the provided academic context, answer the user's query clearly and accurately.
+Avoid hallucinating or guessing if the context does not support the answer.
+
+--- CONTEXT ---
 {context}
 
-Question:
-{question}
+--- USER QUESTION ---
+{query}
 """)
 
-    query = input("Enter your question: ")
-    query_embedding = embedder.encode(query).tolist()
+        formatted = prompt.format_messages(context=context, query=query)
+        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+        response = llm.invoke(formatted)
 
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=5
-    )
-
-    retrieved_chunks = results["documents"][0]
-    context = "\n\n".join(retrieved_chunks)
-
-    formatted_prompt = prompt.format_messages(
-        context=context,
-        question=query
-    )
-
-    response = llm.invoke(formatted_prompt)
-
-    print("\nYour Answer:\n")
-    print(response.content)
+        print("\nAnswer:", response.content.strip())

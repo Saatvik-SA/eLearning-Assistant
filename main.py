@@ -1,12 +1,15 @@
-# --- File: main.py ---
+# --- main.py ---
 
 import os
 from dotenv import load_dotenv
-from tkinter import filedialog, Tk
-import fitz
 
-from Utilities.Embeddings import get_embedder
-from Utilities.ChromaDB import add_chunks_to_chromadb, get_chromadb_collection
+from Utilities.Core import (
+    upload_study_pdfs,
+    upload_answer_pdfs,
+    select_pdf_file,
+    prepare_academic_context
+)
+
 from Agents.Planner_agent import run_study_planner, export_study_plan_to_excel
 from Agents.Quiz_generator import run_quiz_generator, export_quiz_to_pdf
 from Agents.Quiz_grader import run_grader, export_graded_report_to_pdf, batch_grade_all_answers
@@ -16,78 +19,22 @@ from Agents.Feedback_agent import run_feedback_agent
 from Agents.Rescue_agent import run_rescue_agent
 from Agents.Progress_tracker import track_progress
 
+
 # === Load API Key ===
 load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 
-# === Upload PDFs via Dialog ===
-def upload_pdfs():
-    root = Tk()
-    root.withdraw()
-    root.call('wm', 'attributes', '.', '-topmost', True)
-
-    files = filedialog.askopenfilenames(filetypes=[("PDF files", "*.pdf")])
-    upload_dir = "Data/Upload"
-    os.makedirs(upload_dir, exist_ok=True)
-
-    for file_path in files:
-        file_name = os.path.basename(file_path)
-        dest_path = os.path.join(upload_dir, file_name)
-        with open(file_path, "rb") as src, open(dest_path, "wb") as dst:
-            dst.write(src.read())
-        print(f"Uploaded: {file_name}")
-
-    root.destroy()
-
-
-# === Select PDF Dialog Utility ===
-def select_pdf_file(title="Select PDF file"):
-    root = Tk()
-    root.withdraw()
-    root.call('wm', 'attributes', '.', '-topmost', True)
-    file_path = filedialog.askopenfilename(title=title, filetypes=[("PDF files", "*.pdf")])
-    root.destroy()
-    return file_path
-
-
-# === Chunk + Embed PDFs ===
-def load_and_chunk_pdfs():
-    folder = "Data/Upload"
-    all_texts = []
-
-    for file in os.listdir(folder):
-        if file.endswith(".pdf"):
-            with fitz.open(os.path.join(folder, file)) as doc:
-                text = "".join([page.get_text() for page in doc])
-                all_texts.append(text)
-
-    return all_texts
-
-
-def embed_and_store_chunks(chunks):
-    embedder = get_embedder()
-    embeddings = embedder.encode(chunks, show_progress_bar=True)
-    add_chunks_to_chromadb(chunks, embeddings)
-    return get_chromadb_collection(), embedder
-
-
-# === Intent-based Router ===
+# === Intent-Based Router ===
 def agentic_router(user_input):
     user_input = user_input.lower()
 
-    chunks = load_and_chunk_pdfs()
-    total_chunks = len(chunks)
-    collection, embedder = embed_and_store_chunks(chunks)
+    # Prepare academic context once per session
+    chunks_uploaded = prepare_academic_context()
+    collection, embedder, total_chunks = chunks_uploaded
 
     if "study plan" in user_input or "planner" in user_input:
-        weeks = None
-        for word in user_input.split():
-            if word.isdigit():
-                weeks = int(word)
-                break
-        if not weeks:
-            weeks = int(input("How many weeks until the exam? "))
+        weeks = extract_weeks(user_input)
         plan = run_study_planner(collection, total_chunks, weeks)
         export_study_plan_to_excel(plan, filename="Data/Output/study_plan.xlsx")
 
@@ -97,20 +44,7 @@ def agentic_router(user_input):
 
     elif "batch grade" in user_input or "grade all" in user_input:
         quiz = run_quiz_generator(collection, total_chunks)
-        batch_grade_all_answers(quiz_text=quiz)
-
-        feedback_choice = input("Do you want feedback on all graded reports? (yes/no): ").strip().lower()
-        if feedback_choice in {"yes", "y"}:
-            for file in os.listdir("Data/Output"):
-                if file.endswith("_Graded.pdf"):
-                    try:
-                        with open(f"Data/Output/{file}", "r", encoding="utf-8", errors="ignore") as f:
-                            graded_text = f.read()
-                        feedback_file = file.replace("_Graded.pdf", "_Feedback.txt")
-                        run_feedback_agent(graded_text, filename=f"Data/Output/{feedback_file}")
-                        print(f"Feedback generated for {file}")
-                    except Exception as e:
-                        print(f"❌ Skipped {file} for feedback due to error: {e}")
+        batch_grade_all_answers()
 
     elif "grade" in user_input or "mark" in user_input:
         student_pdf = select_pdf_file("Select student answer sheet PDF")
@@ -119,13 +53,11 @@ def agentic_router(user_input):
 
         graded_path = "Data/Output/Student_Graded_Report.pdf"
         export_graded_report_to_pdf(graded, filename=graded_path)
-        print(f"Graded report saved to: {graded_path}")
 
         feedback_choice = input("Do you want feedback on this paper? (yes/no): ").strip().lower()
         if feedback_choice in {"yes", "y"}:
             feedback_path = "Data/Output/Student_Feedback_Report.pdf"
             run_feedback_agent(graded, filename=feedback_path)
-            print(f"Feedback report saved to: {feedback_path}")
 
     elif "answer key" in user_input:
         quiz = run_quiz_generator(collection, total_chunks)
@@ -138,7 +70,7 @@ def agentic_router(user_input):
         run_feedback_agent(graded_text, filename="Data/Output/Student_Feedback_Report.pdf")
 
     elif "revision" in user_input or "rescue" in user_input or "exam tomorrow" in user_input:
-        run_rescue_agent(collection)
+        run_rescue_agent(collection, total_chunks)
 
     elif "progress" in user_input or "track" in user_input:
         track_progress()
@@ -147,13 +79,26 @@ def agentic_router(user_input):
         run_rag_chat(embedder, collection)
 
 
-# === Entry ===
+# === Week Extractor ===
+def extract_weeks(user_input):
+    for word in user_input.split():
+        if word.isdigit():
+            return int(word)
+    return int(input("How many weeks until the exam? "))
+
+
+# === Entry Point ===
 if __name__ == "__main__":
     print("Upload your academic PDFs...")
-    upload_pdfs()
+    upload_study_pdfs()
 
     print("\neLearning Assistant is ready!")
-    print("Ask me to do something (e.g., 'create study plan', 'grade answers', 'batch grade', 'quiz', 'feedback', 'revision', 'track progress' or ask a question)\n")
+    print("Ask me to do something like:")
+    print("➡  create study plan")
+    print("➡  generate quiz")
+    print("➡  grade answers / batch grade")
+    print("➡  answer key / feedback / revision / progress")
+    print("➡  or ask any academic question\n")
 
     while True:
         user_input = input("You: ").strip()

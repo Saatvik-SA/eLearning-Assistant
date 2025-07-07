@@ -1,8 +1,14 @@
+# --- Agents/AnswerKey.py ---
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from fpdf import FPDF
+import os
 
 def run_answer_key_generator(quiz_text, filename="Generated_Answer_Key.pdf"):
+    """
+    Extracts correct answers from a generated quiz and exports them to a PDF.
+    """
     prompt = ChatPromptTemplate.from_template("""
 You are an academic assistant. The user has provided a quiz with different question types.
 Your task is to extract only the correct **answers** from each question and format them under each section:
@@ -29,6 +35,11 @@ Quiz:
     export_answer_key_to_pdf(answer_text, filename)
 
 def export_answer_key_to_pdf(answer_text, filename="Generated_Answer_Key.pdf"):
+    """
+    Saves the answer key text to a PDF file.
+    """
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
