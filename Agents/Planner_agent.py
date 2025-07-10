@@ -59,7 +59,7 @@ def export_study_plan_to_excel(response_text: str, filename="Data/Output/study_p
     rows = [list(map(str.strip, row)) for row in rows]
 
     if not rows or len(rows[0]) < 5:
-        print("❌ Couldn't extract structured table. Please check LLM output.")
+        print("Couldn't extract structured table. Please check LLM output.")
         return
 
     df = pd.DataFrame(rows, columns=["Week", "Section", "Chapter", "Key Topics/Concepts", "Description"])

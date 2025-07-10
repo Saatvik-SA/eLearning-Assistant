@@ -17,7 +17,7 @@ from Agents.Feedback_agent import run_feedback_agent
 from Agents.Rescue_agent import run_rescue_agent
 from Agents.Progress_tracker import track_progress
 from Agents.Rag_chat import run_rag_chat
-from Agents.Notifier_agent import run_parent_notifier  # Final notifier agent
+from Agents.Notifier_agent import run_parent_notifier
 
 
 # === Load .env ===
@@ -75,12 +75,17 @@ def agentic_router(user_input):
 
 # === Entry ===
 if __name__ == "__main__":
-    print("Upload your academic PDFs to begin.")
+    print("Upload your academic study material PDFs:")
     upload_study_pdfs()
-    upload_answer_pdfs()
+
+    upload_answers = input("Do you want to upload student answer sheets for grading? (yes/no): ").strip().lower()
+    if upload_answers in {"yes", "y"}:
+        upload_answer_pdfs()
+    else:
+        print("Skipping answer upload.")
 
     print("\neLearning Assistant Ready!")
-    print("Try commands like: study plan, quiz, grade, feedback, track progress, notify, etc.\n")
+    print("Try commands like: study plan, quiz, grade, batch grade, answer key, feedback, revision, progress, notify")
 
     while True:
         user_input = input("You: ").strip()
