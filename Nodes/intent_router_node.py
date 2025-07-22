@@ -1,60 +1,54 @@
 # nodes/intent_router_node.py
 
 from langchain_core.runnables import RunnableLambda
-
-# === Intent to Tool Node Map ===
-INTENT_TOOL_MAP = {
-    "generate_quiz": "quiz_generator_node",
-    "grade_quiz_single": "grade_single_quiz_node",
-    "grade_quiz_batch": "batch_grade_quizzes_node",
-    "generate_feedback": "generate_feedback_node",
-    "create_answer_key": "answer_key_node",
-    "track_progress": "progress_tracker_node",
-    "generate_plan": "planner_node",
-    "answer_question": "rag_chat_node",
-    "revision_kit": "revision_kit_node",
-    "notify_user": "notifier_node"
-}
-
-# === Acceptable Inputs for Each Tool ===
-TOOL_ARG_FILTERS = {
-    "quiz_generator_node": ["query", "collection", "total_chunks", "uploaded_files", "expanded"],
-    "grade_single_quiz_node": ["query", "collection", "uploaded_files", "expanded"],
-    "batch_grade_quizzes_node": ["query", "collection", "uploaded_files", "expanded"],
-    "generate_feedback_node": ["query", "uploaded_files", "expanded"],
-    "answer_key_node": ["query", "collection", "uploaded_files", "expanded"],
-    "progress_tracker_node": ["query", "uploaded_files", "expanded"],
-    "planner_node": ["query", "collection", "embedder", "total_chunks", "uploaded_files", "expanded"],
-    "rag_chat_node": ["query", "collection", "expanded"],
-    "revision_kit_node": ["query", "collection", "expanded"],
-    "notifier_node": ["query", "uploaded_files", "expanded"]
-}
+from Nodes.agent_state import AgentState, update_agent_state
+import logging
 
 def intent_router_node() -> RunnableLambda:
-    def classify_and_route(inputs: dict) -> dict:
-        expanded = inputs.get("expanded", {})
-        intent = expanded.get("intent", "").strip()
-
-        print(f"\nExtracted intent: {intent}")
-
-        if not intent or intent not in INTENT_TOOL_MAP:
-            raise ValueError(f"Unsupported or missing intent: {intent}")
-
-        tool_name = INTENT_TOOL_MAP[intent]
-        allowed_keys = TOOL_ARG_FILTERS.get(tool_name, [])
-
-        # Filter only allowed args for the specific tool
-        tool_args = {k: inputs[k] for k in allowed_keys if k in inputs}
-
-        print(f"Routing to: {tool_name} for intent: {intent}")
-        print(f"Tool Args: {list(tool_args.keys())}")
-
-        return {
-            **inputs,
-            "intent": intent,
-            "tool_name": tool_name,
-            "confidence": 1.0,
-            "tool_args": tool_args
-        }
-
+    """
+    Routes the agentic intent to the correct node. Supports 'generate_plan' and 'generate_quiz' intents. Handles unknown intent gracefully.
+    """
+    def classify_and_route(state: AgentState) -> AgentState:
+        logging.info(f"[Intent Router] Full state: {state}")
+        # Try to extract intent from top-level, then from any nested dicts
+        intent = state.get("intent", "").strip()
+        if not intent:
+            # Check for nested dicts (e.g., 'expanded' or others)
+            for v in state.values():
+                if isinstance(v, dict) and "intent" in v:
+                    intent = v["intent"].strip()
+                    break
+        logging.info(f"[Intent Router] Extracted intent: {intent}")
+        if intent == "generate_plan":
+            return update_agent_state(state, tool_name="planner_node")
+        elif intent == "generate_quiz":
+            return update_agent_state(state, tool_name="quiz_generator_node")
+        elif intent == "generate_answer_key":
+            return update_agent_state(state, tool_name="answer_key_node")
+        elif intent == "generate_revision_kit":
+            return update_agent_state(state, tool_name="revision_kit_node")
+        elif intent == "generate_quiz_grade":
+            # Check number of answer files in Data/Answers
+            import os
+            answers_dir = "Data/Answers"
+            if os.path.exists(answers_dir):
+                answer_files = [f for f in os.listdir(answers_dir) if f.lower().endswith('.pdf')]
+                num_files = len(answer_files)
+            else:
+                num_files = 0
+            if num_files > 1:
+                return update_agent_state(state, tool_name="batch_grade_quizzes_node")
+            else:
+                return update_agent_state(state, tool_name="grade_single_quiz_node")
+        elif intent == "generate_feedback":
+            return update_agent_state(state, tool_name="feedback_node")
+        elif intent == "track_progress":
+            return update_agent_state(state, tool_name="progress_node")
+        elif intent == "send_notification":
+            return update_agent_state(state, tool_name="notifier_node")
+        elif intent == "rag_chat":
+            return update_agent_state(state, tool_name="rag_chat_node")
+        else:
+            logging.error(f"[Intent Router] Unsupported or missing intent: {intent}")
+            return update_agent_state(state, status="error", error="Sorry, I could not understand your request. Please clarify if you want a study plan, quiz, answer key, revision kit, or quiz grading.")
     return RunnableLambda(classify_and_route)

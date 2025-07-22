@@ -1,43 +1,20 @@
 # Tools/quiz_generator_node.py
 
-from typing import Optional
-from pydantic import BaseModel, Field
-from langchain_core.tools import tool
-from Agents.Quiz_generator import run_quiz_generator, export_quiz_to_pdf
+from Agents.Quiz_generator import run_quiz_generator_agent
+from Nodes.agent_state import AgentState
+import logging
 
-class QuizGeneratorInput(BaseModel):
-    collection: object = Field(..., description="ChromaDB vector store of academic content.")
-    total_chunks: int = Field(..., description="Number of content chunks to use.")
-    num_mcq: Optional[int] = Field(3, description="Number of MCQs.")
-    num_short: Optional[int] = Field(2, description="Number of short answer questions.")
-    num_long: Optional[int] = Field(2, description="Number of long answer questions.")
-    num_fill: Optional[int] = Field(2, description="Number of fill in the blanks.")
-    num_tf: Optional[int] = Field(2, description="Number of true/false questions.")
-    difficulty: Optional[str] = Field(None, description="Difficulty level (easy, medium, hard).")
-
-@tool(args_schema=QuizGeneratorInput)
-def quiz_generator_node(inputs: QuizGeneratorInput) -> dict:
+def quiz_generator_node() -> callable:
     """
-    Wraps the quiz generator agent. Uses embedded academic content to generate a quiz.
+    Node for generating a quiz using syllabus content. Accepts and returns AgentState.
     """
-    print(f"[Quiz Generator Node] Running quiz generation...")
-
-    quiz = run_quiz_generator(
-        collection=inputs.collection,
-        total_chunks=inputs.total_chunks,
-        num_mcq=inputs.num_mcq,
-        num_short=inputs.num_short,
-        num_long=inputs.num_long,
-        num_fill=inputs.num_fill,
-        num_tf=inputs.num_tf,
-        difficulty=inputs.difficulty
-    )
-
-    # Optional PDF export
-    pdf_path = export_quiz_to_pdf(quiz)
-
-    return {
-        "status": "success",
-        "quiz_preview": quiz[:300] + "...",
-        "output_file": pdf_path
-    }
+    def node_fn(state: AgentState) -> AgentState:
+        try:
+            logging.info("[Quiz Generator Node] Running quiz generator agent...")
+            return run_quiz_generator_agent(state)
+        except Exception as e:
+            logging.error(f"[Quiz Generator Node] Error: {e}")
+            state["status"] = "error"
+            state["error"] = str(e)
+            return state
+    return node_fn

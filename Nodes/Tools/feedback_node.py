@@ -1,31 +1,23 @@
-from langchain_core.tools import tool
+import os
 from Agents.Feedback_agent import run_feedback_agent
 from Utilities.PDF import extract_text_from_pdf_path
-import os
 
-@tool
-def generate_feedback_node(inputs: dict) -> dict:
+# Remove @tool and Pydantic schema
+def feedback_node(state: dict) -> dict:
     """
     Generates personalized feedback from a graded quiz report and saves it as a PDF.
-
-    Inputs:
-    {
-        "graded_file_path": "Data/Output/some_graded_file.pdf" or .txt,
-        "student_name": Optional[str]
-    }
-
-    Output:
-    {
-        "status": "success",
-        "file_path": <str>,
-        "output_type": "file"
-    }
+    Expects:
+        state['graded_file_path']: path to graded PDF or TXT
+        state['student_name']: optional
+    Mutates and returns state with feedback file path and status.
     """
-    graded_file_path = inputs.get("graded_file_path")
-    student_name = inputs.get("student_name", "Student")
+    graded_file_path = state.get("graded_file_path")
+    student_name = state.get("student_name", "Student")
 
     if not graded_file_path or not os.path.exists(graded_file_path):
-        raise FileNotFoundError(f"No valid graded file provided: {graded_file_path}")
+        state["status"] = "error"
+        state["error"] = f"No valid graded file provided: {graded_file_path}"
+        return state
 
     # Read text from the graded file (PDF or TXT)
     if graded_file_path.endswith(".pdf"):
@@ -34,7 +26,9 @@ def generate_feedback_node(inputs: dict) -> dict:
         with open(graded_file_path, "r", encoding="utf-8", errors="ignore") as f:
             graded_text = f.read()
     else:
-        raise ValueError("Unsupported file type. Must be .pdf or .txt")
+        state["status"] = "error"
+        state["error"] = "Unsupported file type. Must be .pdf or .txt"
+        return state
 
     # Construct feedback filename based on student or input
     student_name_clean = student_name.replace(" ", "_")
@@ -43,8 +37,12 @@ def generate_feedback_node(inputs: dict) -> dict:
     # Run feedback agent → saves to PDF
     run_feedback_agent(graded_text, filename=feedback_filename)
 
-    return {
-        "status": "success",
-        "file_path": feedback_filename,
-        "output_type": "file"
-    }
+    state["status"] = "success"
+    state["file_path"] = feedback_filename
+    state["output_type"] = "file"
+    return state
+
+def feedback_node_wrapper():
+    def node(state: dict) -> dict:
+        return feedback_node(state)
+    return node

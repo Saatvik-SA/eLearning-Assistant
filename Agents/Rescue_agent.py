@@ -42,13 +42,33 @@ def export_rescue_kit_to_pdf(text, filename="Data/Output/Revision_Kit.pdf"):
     """
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+    # Simple text cleaning to avoid Unicode encoding errors
+    def clean_text(text):
+        # Replace common problematic Unicode characters with simple ASCII equivalents
+        replacements = {
+            '–': '-',  # en dash
+            '—': '-',  # em dash
+            '"': '"',  # smart quotes
+            '"': '"',
+            ''': "'",  # smart apostrophes
+            ''': "'",
+            '…': '...',  # ellipsis
+            '°': ' degrees',  # degree symbol
+            '×': 'x',  # multiplication sign
+            '÷': '/',  # division sign
+        }
+        for unicode_char, ascii_char in replacements.items():
+            text = text.replace(unicode_char, ascii_char)
+        return text
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.set_auto_page_break(auto=True, margin=15)
 
     for line in text.strip().split("\n"):
-        pdf.multi_cell(0, 10, line)
+        clean_line = clean_text(line)
+        pdf.multi_cell(0, 10, clean_line)
 
     pdf.output(filename)
     print(f"Revision Kit saved to: {filename}")

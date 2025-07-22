@@ -55,7 +55,7 @@ Return:
 
 def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Report.pdf"):
     """
-    Saves graded report to PDF.
+    Saves graded report to PDF and returns the file path.
     """
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
@@ -69,12 +69,15 @@ def export_graded_report_to_pdf(graded_text: str, filename="Student_Graded_Repor
 
     pdf.output(filename)
     print(f"Graded report exported: {filename}")
+    return filename
 
 
 def batch_grade_all_answers(answers_folder="Data/Answers"):
     """
     Grades all answer PDFs in a folder using content from ChromaDB.
+    Returns a list of output paths for all graded reports.
     """
+    output_paths = []
     for file in os.listdir(answers_folder):
         if file.endswith(".pdf"):
             file_path = os.path.join(answers_folder, file)
@@ -83,9 +86,11 @@ def batch_grade_all_answers(answers_folder="Data/Answers"):
             output_path = os.path.join("Data/Output", file.replace(".pdf", "_Graded.pdf"))
             export_graded_report_to_pdf(graded, filename=output_path)
             print(f"Graded: {file} → {output_path}")
+            output_paths.append(output_path)
 
             choice = input(f"Generate feedback for {file}? (yes/no): ").strip().lower()
             if choice in {"yes", "y"}:
                 feedback_path = os.path.join("Data/Output", file.replace(".pdf", "_Feedback.txt"))
                 run_feedback_agent(graded, filename=feedback_path)
                 print(f"Feedback saved to: {feedback_path}")
+    return output_paths

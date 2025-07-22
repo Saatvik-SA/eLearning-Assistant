@@ -12,3 +12,5 @@ langchain-google-genai
 google-generativeai
 reportlab
 python-dotenv
+rapidfuzz
+matplotlib

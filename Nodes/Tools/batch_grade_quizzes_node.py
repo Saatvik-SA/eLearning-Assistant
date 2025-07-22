@@ -1,9 +1,7 @@
 # Tools/batch_grade_quizzes_node.py
 
-from langchain_core.tools import tool
 from Agents.Quiz_grader import batch_grade_all_answers
 
-@tool
 def batch_grade_quizzes_node(inputs: dict) -> dict:
     """
     Grades all available student answer PDFs in Data/Answers.
@@ -27,3 +25,12 @@ def batch_grade_quizzes_node(inputs: dict) -> dict:
         "multi_doc": True,
         "output_type": "file"
     }
+
+def batch_grade_quizzes_node_wrapper() -> callable:
+    def node(state: dict) -> dict:
+        # Call the function with the state as input
+        result = batch_grade_quizzes_node(state)
+        # Merge result into state (preserve previous keys, update with result)
+        state.update(result)
+        return state
+    return node

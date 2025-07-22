@@ -2,7 +2,6 @@ from langchain_core.tools import tool
 from Agents.Rescue_agent import run_rescue_agent
 from Utilities.Core import prepare_academic_context
 
-@tool
 def revision_kit_node(inputs: dict = {}) -> dict:
     """
     Generates a revision kit for last-minute exam preparation using the uploaded academic content.
@@ -25,3 +24,12 @@ def revision_kit_node(inputs: dict = {}) -> dict:
         "file_path": "Data/Output/Revision_Kit.pdf",
         "output_type": "file"
     }
+
+def revision_kit_node_wrapper() -> callable:
+    def node(state: dict) -> dict:
+        # Call the tool with the state as input
+        result = revision_kit_node(state)
+        # Merge result into state (preserve previous keys, update with result)
+        state.update(result)
+        return state
+    return node

@@ -7,7 +7,7 @@ import os
 
 def run_feedback_agent(graded_text, filename="Data/Output/Student_Feedback_Report.pdf"):
     """
-    Generates detailed, motivational feedback from a graded report.
+    Generates detailed, motivational feedback from a graded report and saves as PDF.
     """
     prompt = ChatPromptTemplate.from_template("""
 You are a helpful feedback assistant for students.
@@ -26,7 +26,14 @@ Given a graded quiz report, do the following:
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
     feedback = llm.invoke(formatted).content
 
+    # Always save as PDF, never as .txt
+    if not filename.lower().endswith('.pdf'):
+        filename = filename.rsplit('.', 1)[0] + '.pdf'
     export_feedback_to_pdf(feedback, filename)
+
+def clean_text_for_pdf(text):
+    # Replace or remove non-latin1 characters
+    return text.encode('latin-1', 'replace').decode('latin-1')
 
 def export_feedback_to_pdf(feedback_text, filename="Data/Output/Student_Feedback_Report.pdf"):
     """
@@ -38,6 +45,9 @@ def export_feedback_to_pdf(feedback_text, filename="Data/Output/Student_Feedback
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.set_auto_page_break(auto=True, margin=15)
+
+    # Clean text before writing to PDF
+    feedback_text = clean_text_for_pdf(feedback_text)
 
     for line in feedback_text.strip().split("\n"):
         pdf.multi_cell(0, 10, line)

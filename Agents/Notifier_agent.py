@@ -131,7 +131,7 @@ def generate_parent_pdf(topics, week_number, quiz_summary, stats):
 
 
 # --- Main Agent ---
-def run_parent_notifier():
+def run_parent_notifier(files_to_attach=None):
     global STUDENT_EMAIL, PARENT_EMAIL
 
     if not STUDENT_EMAIL:
@@ -152,22 +152,38 @@ def run_parent_notifier():
     else:
         body = f"No topics found for Week {current_week}."
 
-    send_email_with_attachment(
-        subject=f"Weekly Study Reminder – Week {current_week}",
-        body=body,
-        to_email=STUDENT_EMAIL
-    )
+    # Attach files as requested
+    try:
+        attach = files_to_attach
+        if isinstance(attach, list) and len(attach) == 1:
+            attach = attach[0]
+        print(f"[DEBUG] Sending student email to: {STUDENT_EMAIL}, attachments: {attach}")
+        send_email_with_attachment(
+            subject=f"Weekly Study Reminder – Week {current_week}",
+            body=body,
+            to_email=STUDENT_EMAIL,
+            attachment_path=attach
+        )
+    except Exception as e:
+        print(f"[ERROR] Failed to send student email: {e}")
 
     # 2. Send to Parent
     quiz_summary, stats = summarize_progress()
     generate_parent_pdf(week_topics, current_week, quiz_summary, stats)
 
-    send_email_with_attachment(
-    subject="Weekly Student Report + Study Plan",
-    body="Dear Parent,\n\nAttached are this week's progress report and the full study plan.\n\nRegards,\nE-Learning Assistant",
-    to_email=PARENT_EMAIL,
-    attachment_path=[REPORT_PDF, PLAN_PATH]
-    )
+    try:
+        parent_attach = [REPORT_PDF, PLAN_PATH]
+        if isinstance(parent_attach, list) and len(parent_attach) == 1:
+            parent_attach = parent_attach[0]
+        print(f"[DEBUG] Sending parent email to: {PARENT_EMAIL}, attachments: {parent_attach}")
+        send_email_with_attachment(
+            subject="Weekly Student Report + Study Plan",
+            body="Dear Parent,\n\nAttached are this week's progress report and the full study plan.\n\nRegards,\nE-Learning Assistant",
+            to_email=PARENT_EMAIL,
+            attachment_path=parent_attach
+        )
+    except Exception as e:
+        print(f"[ERROR] Failed to send parent email: {e}")
 
 
 if __name__ == "__main__":
