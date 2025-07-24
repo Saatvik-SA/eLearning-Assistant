@@ -64,6 +64,32 @@ def select_pdf_file(title="Select PDF file"):
     root.destroy()
     return file_path
 
+def list_pdfs_in_directory(directory):
+    """Return a list of PDF file names in the given directory (not full paths)."""
+    import os
+    if not os.path.exists(directory):
+        return []
+    return [f for f in os.listdir(directory) if f.lower().endswith('.pdf')]
+
+
+def prompt_user_to_select_file(files, prompt_message="Select a file (number):"):
+    """Prompt the user to select a file from a list. Returns the selected file name or None."""
+    if not files:
+        return None
+    for idx, fname in enumerate(files, 1):
+        print(f"{idx}. {fname}")
+    sel = input(prompt_message).strip()
+    try:
+        sel_idx = int(sel) - 1
+        if 0 <= sel_idx < len(files):
+            return files[sel_idx]
+        else:
+            print("Invalid selection.")
+            return None
+    except Exception:
+        print("Invalid input.")
+        return None
+
 # === Academic Context Preparation Pipeline ===
 def prepare_academic_context():
     """Loads and embeds study PDFs from Data/Upload. Returns (collection, embedder, total_chunks)."""

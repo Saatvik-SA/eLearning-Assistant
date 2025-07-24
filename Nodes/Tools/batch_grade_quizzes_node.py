@@ -1,6 +1,7 @@
 # Tools/batch_grade_quizzes_node.py
 
 from Agents.Quiz_grader import batch_grade_all_answers
+from Utilities.Core import list_pdfs_in_directory, upload_answer_pdfs
 
 def batch_grade_quizzes_node(inputs: dict) -> dict:
     """
@@ -15,8 +16,15 @@ def batch_grade_quizzes_node(inputs: dict) -> dict:
         "output_type": "file"
     }
     """
+    answer_dir = "Data/Answers"
+    available = list_pdfs_in_directory(answer_dir)
+    if not available:
+        print(f"No answer sheets found in {answer_dir}. Please upload the student answer sheet PDFs you want to grade.")
+        uploaded = upload_answer_pdfs()
+        if not uploaded:
+            print("No answer sheets uploaded. Batch grading cancelled.")
+            return {"status": "cancelled", "error": "No answer sheets uploaded.", "output_type": "file"}
     print("[Batch Grader Node] Grading all available student responses in Data/Answers...")
-
     report_paths = batch_grade_all_answers()
 
     return {

@@ -1,6 +1,7 @@
 from langchain_core.tools import tool
 from Agents.Rescue_agent import run_rescue_agent
 from Utilities.Core import prepare_academic_context
+from Utilities.PDF import export_revision_kit_to_pdf
 
 def revision_kit_node(inputs: dict = {}) -> dict:
     """

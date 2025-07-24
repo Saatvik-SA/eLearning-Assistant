@@ -10,7 +10,8 @@ from typing import Any, Dict
 from Nodes.agent_state import AgentState, update_agent_state
 
 from Utilities.PDF import extract_text_from_pdf_path
-from Utilities.Core import prepare_academic_context
+from Utilities.Core import prepare_academic_context, upload_study_pdfs
+from Utilities.PDF import export_answer_key_to_pdf
 
 def answer_key_node() -> RunnableLambda:
     """
@@ -43,14 +44,20 @@ def answer_key_node() -> RunnableLambda:
                         break
 
             if not quiz_file:
-                error_msg = f"No quiz file found in Data/Upload. Please upload a quiz file first."
-                logging.error(f"[Answer Key Node] {error_msg}")
-                return update_agent_state(
-                    state,
-                    status="error",
-                    error=error_msg,
-                    tool_name="answer_key_node"
-                )
+                print("No quiz file found in Data/Upload. Please upload the quiz file (PDF or TXT) you want to use for answer key generation.")
+                uploaded = upload_study_pdfs()
+                if uploaded:
+                    quiz_file = uploaded[-1]
+                    print(f"Uploaded: {quiz_file}")
+                else:
+                    error_msg = "No quiz file uploaded. Answer key generation cancelled."
+                    logging.error(f"[Answer Key Node] {error_msg}")
+                    return update_agent_state(
+                        state,
+                        status="cancelled",
+                        error=error_msg,
+                        tool_name="answer_key_node"
+                    )
 
             logging.info(f"[Answer Key Node] Found quiz file: {quiz_file}")
 
@@ -103,24 +110,7 @@ Quiz:
             # Step 5: Export answer key
             base_name = os.path.splitext(os.path.basename(quiz_file))[0]
             output_file = os.path.join("Data/Output", f"{base_name}_answer_key.pdf")
-            
-            # Create output directory if it doesn't exist
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            
-            # Export to PDF
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_auto_page_break(auto=True, margin=15)
-            pdf.set_font("Arial", size=12)
-
-            for line in answer_text.split('\n'):
-                try:
-                    pdf.multi_cell(0, 10, txt=line.encode('latin-1', 'ignore').decode('latin-1'))
-                except Exception as e:
-                    logging.warning(f"[Answer Key Node] Skipped line due to encoding issue: {line}")
-
-            pdf.output(output_file)
-            
+            export_answer_key_to_pdf(answer_text, output_file)
             logging.info(f"[Answer Key Node] Answer key saved as: {output_file}")
 
             # Update state with success
