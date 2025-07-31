@@ -32,5 +32,6 @@ def revision_kit_node_wrapper() -> callable:
         result = revision_kit_node(state)
         # Merge result into state (preserve previous keys, update with result)
         state.update(result)
+        state["tool_name"] = "revision_kit_node"
         return state
     return node

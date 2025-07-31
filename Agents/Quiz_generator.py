@@ -65,11 +65,12 @@ Context:
             output_type="file",
             quiz_preview=quiz_text[:1000],
             response="Quiz generated successfully.",
-            status="done"
+            status="done",
+            tool_name="quiz_generator_node"
         )
     except Exception as e:
         logging.error(f"Quiz generation failed: {e}")
-        return update_agent_state(state, status="error", error=str(e))
+        return update_agent_state(state, status="error", error=str(e), tool_name="quiz_generator_node")
 
 def export_quiz_to_pdf(quiz_text, filename):
     """

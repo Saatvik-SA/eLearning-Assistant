@@ -32,6 +32,7 @@ def rag_chat_node(state: dict) -> dict:
     state["response"] = answer
     state["summary"] = answer
     state["output_type"] = "text"
+    state["tool_name"] = "rag_chat_node"
     state["source"] = "retrieved from uploaded academic context"
     return state
 

@@ -62,5 +62,6 @@ def grade_single_quiz_node_wrapper() -> callable:
         result = grade_single_quiz_node(state)
         # Merge result into state (preserve previous keys, update with result)
         state.update(result)
+        state["tool_name"] = "grade_single_quiz_node"
         return state
     return node

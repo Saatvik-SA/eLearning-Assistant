@@ -65,10 +65,11 @@ Content:
             file_path=file_path,
             output_type="file",
             response="Study plan generated successfully.",
-            status="done"
+            status="done",
+            tool_name="planner_node"
         )
     except Exception as e:
-        return update_agent_state(state, status="error", error=str(e))
+        return update_agent_state(state, status="error", error=str(e), tool_name="planner_node")
 
 def export_study_plan_to_excel(response_text: str, filename="Data/Output/study_plan.xlsx") -> str:
     lines = response_text.strip().splitlines()

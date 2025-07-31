@@ -19,6 +19,7 @@ def progress_tracker_node(state: dict) -> dict:
     if not os.path.exists(csv_path) or not os.path.exists(chart_path):
         state["status"] = "error"
         state["error"] = "Progress report or chart was not generated correctly."
+        state["tool_name"] = "progress_node"
         return state
 
     state["status"] = "completed"
@@ -26,6 +27,7 @@ def progress_tracker_node(state: dict) -> dict:
     state["chart_path"] = chart_path
     state["output_type"] = "file"
     state["files_generated"] = [csv_path, chart_path]
+    state["tool_name"] = "progress_node"
     return state
 
 def progress_node_wrapper():

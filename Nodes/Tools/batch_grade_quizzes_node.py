@@ -40,5 +40,6 @@ def batch_grade_quizzes_node_wrapper() -> callable:
         result = batch_grade_quizzes_node(state)
         # Merge result into state (preserve previous keys, update with result)
         state.update(result)
+        state["tool_name"] = "batch_grade_quizzes_node"
         return state
     return node

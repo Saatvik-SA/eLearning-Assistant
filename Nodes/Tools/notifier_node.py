@@ -40,9 +40,11 @@ def notifier_node(state: dict) -> dict:
         state["status"] = "notified"
         state["output_type"] = "file"
         state["message"] = f"Notifier triggered: emailed files {files_to_attach}"
+        state["tool_name"] = "notifier_node"
     except Exception as e:
         state["status"] = "error"
         state["error"] = str(e)
+        state["tool_name"] = "notifier_node"
     return state
 
 def notifier_node_wrapper():

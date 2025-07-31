@@ -30,6 +30,7 @@ def feedback_node(state: dict) -> dict:
                 print("No graded report selected. Feedback cancelled.")
                 state["status"] = "cancelled"
                 state["error"] = "No graded report selected."
+                state["tool_name"] = "feedback_node"
                 return state
         else:
             print(f"No graded reports found in {output_dir}. Please upload a graded report (PDF) to get feedback.")
@@ -41,6 +42,7 @@ def feedback_node(state: dict) -> dict:
                 print("No graded report uploaded. Feedback cancelled.")
                 state["status"] = "cancelled"
                 state["error"] = "No graded report uploaded."
+                state["tool_name"] = "feedback_node"
                 return state
 
     # Read text from the graded file (PDF or TXT)
@@ -52,6 +54,7 @@ def feedback_node(state: dict) -> dict:
     else:
         state["status"] = "error"
         state["error"] = "Unsupported file type. Must be .pdf or .txt"
+        state["tool_name"] = "feedback_node"
         return state
 
     # Construct feedback filename based on student or input
@@ -64,6 +67,7 @@ def feedback_node(state: dict) -> dict:
     state["status"] = "success"
     state["file_path"] = feedback_filename
     state["output_type"] = "file"
+    state["tool_name"] = "feedback_node"
     return state
 
 def feedback_node_wrapper():
