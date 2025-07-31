@@ -3762,3 +3762,8 @@ Output:
 
 Task completed successfully.
 2025-07-31 07:53:42,836 [INFO] root: Session ended by user.
+2025-07-31 12:56:23,128 [INFO] sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2025-07-31 12:56:23,128 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-31 12:56:30,030 [INFO] chromadb.telemetry.product.posthog: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-07-31 12:56:30,073 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 12:56:30,073 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given

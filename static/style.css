@@ -1,0 +1,267 @@
+/* Modern Dark Theme for eLearning Assistant */
+
+/* Main background */
+.main .block-container {
+    background-color: #0f0f23;
+    color: white;
+    padding: 2rem;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #1a1a2e !important;
+    border-right: 2px solid #16213e;
+    padding: 1rem;
+    color: white;
+}
+
+/* Button styling */
+.stButton > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Text input styling */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background-color: #1a1a2e;
+    color: white;
+    border: 2px solid #16213e;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* File uploader styling */
+.stFileUploader > div {
+    background-color: #1a1a2e;
+    border: 2px dashed #16213e;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    color: #ccc;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader > div:hover {
+    border-color: #667eea;
+    background-color: #16213e;
+}
+
+/* Chat message styling */
+.stChatMessage {
+    background-color: #1a1a2e;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+}
+
+/* Download button styling */
+.stDownloadButton > button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stDownloadButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+/* Form styling */
+.stForm {
+    background-color: #1a1a2e;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #16213e;
+    margin-top: 1rem;
+}
+
+/* Form submit button styling */
+.stForm > div > div > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    height: 40px;
+    margin-top: 0;
+}
+
+.stForm > div > div > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Success/Info/Warning message styling */
+.stSuccess {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+}
+
+.stInfo {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+}
+
+.stWarning {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+}
+
+/* Spinner styling */
+.stSpinner > div {
+    border-color: #667eea;
+}
+
+/* Footer styling */
+.footer {
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+    padding: 1rem;
+    border-top: 1px solid #16213e;
+    margin-top: 2rem;
+}
+
+/* Main content area adjustments */
+.main .block-container {
+    max-width: 1200px;
+    padding: 2rem;
+}
+
+/* Title styling */
+h1 {
+    color: white;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h3 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Markdown text styling */
+.stMarkdown {
+    color: white;
+}
+
+/* Sidebar headings */
+.sidebar .sidebar-content h3 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* File upload area styling */
+.stFileUploader > div > div {
+    background-color: #1a1a2e;
+    border: 2px dashed #16213e;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    color: #ccc;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader > div > div:hover {
+    border-color: #667eea;
+    background-color: #16213e;
+}
+
+/* Button group styling */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Text area focus styling */
+.stTextArea > div > div > textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Chat message container */
+.chat-message-container {
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding: 1rem;
+    }
+    
+    .stForm {
+        padding: 1rem;
+    }
+}
+
+/* Hide Streamlit default elements */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #16213e;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #667eea;
+} 
