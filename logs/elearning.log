@@ -3767,3 +3767,272 @@ Task completed successfully.
 2025-07-31 12:56:30,030 [INFO] chromadb.telemetry.product.posthog: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
 2025-07-31 12:56:30,073 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
 2025-07-31 12:56:30,073 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 12:57:23,853 [INFO] sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2025-07-31 12:57:23,853 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-31 12:57:31,811 [INFO] chromadb.telemetry.product.posthog: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-07-31 12:57:31,856 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 12:57:31,856 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 16:38:12,694 [INFO] sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2025-07-31 16:38:12,694 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-31 16:38:19,906 [INFO] chromadb.telemetry.product.posthog: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-07-31 16:38:19,970 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 16:38:19,971 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 16:38:31,703 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event CollectionAddEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 16:38:38,880 [INFO] root: Found uploaded files: ['Data/Upload\\NCERT-Class-10-History.pdf']
+2025-07-31 16:38:38,880 [INFO] root: Processing user input: 'who is napolean' with files: ['Data/Upload\\NCERT-Class-10-History.pdf']
+2025-07-31 16:38:38,882 [INFO] root: [Input Node] Received input: who is napolean
+2025-07-31 16:38:38,883 [INFO] root: [Context Resolver] Defaulting to first uploaded file: 'Data/Upload\NCERT-Class-10-History.pdf'
+2025-07-31 16:38:39,394 [INFO] root: [Context Resolver] Returning state: {'input': 'who is napolean', 'query': 'who is napolean', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None}
+2025-07-31 16:38:39,395 [INFO] root: [Query Expander] user_query: 'who is napolean'
+2025-07-31 16:38:39,395 [INFO] root: [Query Expander] Prompt sent to LLM:
+
+You are a smart, agentic AI for an eLearning Assistant. Your job is to deeply understand the user's request, even if it contains typos, creative phrasing, or ambiguous language. You must:
+- Classify the user's intent as one of:
+    - generate_plan: Create a study plan or schedule
+    - generate_quiz: Generate a quiz or assessment
+    - generate_answer_key: Generate answer key for existing quiz
+    - generate_revision_kit: Generate a last-minute revision kit or rescue summary
+    - generate_quiz_grade: Grade student quiz answers (single or batch)
+    - generate_feedback: Generate feedback for a graded quiz or report
+    - track_progress: Generate a progress report and chart from graded papers
+    - send_notification: Send a report or reminder email to student/parent
+    - rag_chat: Answer an academic question using uploaded/embedded context
+    - unknown: If you truly cannot decide
+- Extract any constraints (number of weeks, difficulty, number/type of questions, etc.)
+- Explain your reasoning for the intent classification and constraint extraction.
+
+Respond ONLY in the following JSON format:
+{
+  "intent": "generate_plan" | "generate_quiz" | "generate_answer_key" | "generate_revision_kit" | "generate_quiz_grade" | "generate_feedback" | "track_progress" | "send_notification" | "rag_chat" | "unknown",
+  "reasoning": "...",
+  "constraints": { ... }
+}
+
+---
+Examples:
+User query: "ask a question about history"
+Output: {"intent": "rag_chat", "reasoning": "User wants to ask an academic question using RAG.", "constraints": {}}
+
+User query: "explain Napoleon's reforms"
+Output: {"intent": "rag_chat", "reasoning": "User wants an explanation of Napoleon's reforms using academic context.", "constraints": {}}
+
+User query: "what is nationalism?"
+Output: {"intent": "rag_chat", "reasoning": "User wants a definition of nationalism from the context.", "constraints": {}}
+
+User query: "show my progress"
+Output: {"intent": "track_progress", "reasoning": "User wants to see their progress over time.", "constraints": {}}
+
+User query: "generate progress report"
+Output: {"intent": "track_progress", "reasoning": "User wants a progress report.", "constraints": {}}
+
+User query: "plot my scores"
+Output: {"intent": "track_progress", "reasoning": "User wants a chart of their scores.", "constraints": {}}
+
+User query: "how am i doing in my quizzes?"
+Output: {"intent": "track_progress", "reasoning": "User wants an analysis of their quiz performance.", "constraints": {}}
+
+User query: "i need a quiz, 5 mcqs, hard"
+Output: {"intent": "generate_quiz", "reasoning": "User requested a quiz with 5 MCQs and hard difficulty.", "constraints": {"num_mcq": 5, "difficulty": "hard"}}
+
+User query: "help me organize my revision"
+Output: {"intent": "generate_plan", "reasoning": "User wants to organize revision, which means a study plan.", "constraints": {}}
+
+User query: "test for chapter 2, easy"
+Output: {"intent": "generate_quiz", "reasoning": "User wants a test (quiz) for chapter 2, easy difficulty.", "constraints": {"difficulty": "easy"}}
+
+User query: "make answer key for quiz 1"
+Output: {"intent": "generate_answer_key", "reasoning": "User wants an answer key for quiz 1.", "constraints": {"quiz_name": "quiz 1"}}
+
+User query: "i need a last minute revision kit for my exam"
+Output: {"intent": "generate_revision_kit", "reasoning": "User wants a revision kit for last-minute exam prep.", "constraints": {}}
+
+User query: "grade my quiz answers"
+Output: {"intent": "generate_quiz_grade", "reasoning": "User wants to grade quiz answers.", "constraints": {"grading_type": "single"}}
+
+User query: "grade all student answers"
+Output: {"intent": "generate_quiz_grade", "reasoning": "User wants to grade multiple student answers in batch.", "constraints": {"grading_type": "batch"}}
+
+User query: "give me feedback on my graded quiz"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback on a graded quiz.", "constraints": {}}
+
+User query: "can you review my quiz report and tell me what to improve?"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback and improvement suggestions for a graded report.", "constraints": {}}
+
+User query: "give me a feedback for my graded papers"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback for already graded papers.", "constraints": {}}
+
+User query: "review my graded answers"
+Output: {"intent": "generate_feedback", "reasoning": "User wants a review of their graded answers.", "constraints": {}}
+
+User query: "analyze my graded quiz"
+Output: {"intent": "generate_feedback", "reasoning": "User wants analysis of a graded quiz.", "constraints": {}}
+
+User query: "feedback for my marked paper"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback for a marked paper.", "constraints": {}}
+
+User query: "asdfghjkl"
+Output: {"intent": "unknown", "reasoning": "Input is gibberish.", "constraints": {}}
+
+---
+User query: "who is napolean"
+Output:
+
+2025-07-31 16:38:41,311 [INFO] root: [Query Expander] LLM raw response: ```json
+{
+  "intent": "rag_chat",
+  "reasoning": "The user is asking a question about a historical figure, Napoleon.  This suggests they want information retrieved from an academic knowledge base.",
+  "constraints": {}
+}
+```
+2025-07-31 16:38:41,311 [INFO] root: [Query Expander] LLM intent: rag_chat, reasoning: The user is asking a question about a historical figure, Napoleon.  This suggests they want information retrieved from an academic knowledge base., constraints: {}
+2025-07-31 16:38:41,311 [INFO] root: [Query Expander] Returning state: {'input': 'who is napolean', 'query': 'who is napolean', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None, 'intent': 'rag_chat', 'reasoning': 'The user is asking a question about a historical figure, Napoleon.  This suggests they want information retrieved from an academic knowledge base.', 'constraints': {}, 'revised_message': 'who is napolean'}
+2025-07-31 16:38:41,312 [INFO] root: [Intent Router] Full state: {'input': 'who is napolean', 'query': 'who is napolean', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None, 'intent': 'rag_chat', 'reasoning': 'The user is asking a question about a historical figure, Napoleon.  This suggests they want information retrieved from an academic knowledge base.', 'constraints': {}, 'revised_message': 'who is napolean'}
+2025-07-31 16:38:41,312 [INFO] root: [Intent Router] Extracted intent: rag_chat
+2025-07-31 16:38:41,322 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 16:39:52,321 [INFO] root: [Response Node] Response: Output from 'rag_chat_node':
+
+Based on the provided text, Napoleon is described as a figure who, through a return to monarchy, destroyed democracy in France but incorporated revolutionary principles in the administrative field to make the system more rational and efficient.  His Napoleonic Code abolished privileges based on birth, established equality before the law, and secured the right to property.  This code was exported to regions under French control, where he simplified administrative divisions, abolished the feudal system, and freed peasants from serfdom and manorial dues.  However,  local populations had mixed reactions to his rule; initial enthusiasm often turned to hostility due to increased taxation, censorship, and forced conscription.
+2025-07-31 17:49:01,307 [INFO] sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2025-07-31 17:49:01,307 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-31 17:49:07,599 [INFO] chromadb.telemetry.product.posthog: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-07-31 17:49:07,732 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 17:49:07,733 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 17:49:24,847 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event CollectionAddEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 17:50:05,978 [INFO] root: Found uploaded files: ['Data/Upload\\NCERT-Class-10-History.pdf']
+2025-07-31 17:50:05,978 [INFO] root: Processing user input: 'What is nationalism' with files: ['Data/Upload\\NCERT-Class-10-History.pdf']
+2025-07-31 17:50:05,983 [INFO] root: [Input Node] Received input: What is nationalism
+2025-07-31 17:50:05,988 [INFO] root: [Context Resolver] Defaulting to first uploaded file: 'Data/Upload\NCERT-Class-10-History.pdf'
+2025-07-31 17:50:06,820 [INFO] root: [Context Resolver] Returning state: {'input': 'What is nationalism', 'query': 'What is nationalism', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None}
+2025-07-31 17:50:06,822 [INFO] root: [Query Expander] user_query: 'What is nationalism'
+2025-07-31 17:50:06,822 [INFO] root: [Query Expander] Prompt sent to LLM:
+
+You are a smart, agentic AI for an eLearning Assistant. Your job is to deeply understand the user's request, even if it contains typos, creative phrasing, or ambiguous language. You must:
+- Classify the user's intent as one of:
+    - generate_plan: Create a study plan or schedule
+    - generate_quiz: Generate a quiz or assessment
+    - generate_answer_key: Generate answer key for existing quiz
+    - generate_revision_kit: Generate a last-minute revision kit or rescue summary
+    - generate_quiz_grade: Grade student quiz answers (single or batch)
+    - generate_feedback: Generate feedback for a graded quiz or report
+    - track_progress: Generate a progress report and chart from graded papers
+    - send_notification: Send a report or reminder email to student/parent
+    - rag_chat: Answer an academic question using uploaded/embedded context
+    - unknown: If you truly cannot decide
+- Extract any constraints (number of weeks, difficulty, number/type of questions, etc.)
+- Explain your reasoning for the intent classification and constraint extraction.
+
+Respond ONLY in the following JSON format:
+{
+  "intent": "generate_plan" | "generate_quiz" | "generate_answer_key" | "generate_revision_kit" | "generate_quiz_grade" | "generate_feedback" | "track_progress" | "send_notification" | "rag_chat" | "unknown",
+  "reasoning": "...",
+  "constraints": { ... }
+}
+
+---
+Examples:
+User query: "ask a question about history"
+Output: {"intent": "rag_chat", "reasoning": "User wants to ask an academic question using RAG.", "constraints": {}}
+
+User query: "explain Napoleon's reforms"
+Output: {"intent": "rag_chat", "reasoning": "User wants an explanation of Napoleon's reforms using academic context.", "constraints": {}}
+
+User query: "what is nationalism?"
+Output: {"intent": "rag_chat", "reasoning": "User wants a definition of nationalism from the context.", "constraints": {}}
+
+User query: "show my progress"
+Output: {"intent": "track_progress", "reasoning": "User wants to see their progress over time.", "constraints": {}}
+
+User query: "generate progress report"
+Output: {"intent": "track_progress", "reasoning": "User wants a progress report.", "constraints": {}}
+
+User query: "plot my scores"
+Output: {"intent": "track_progress", "reasoning": "User wants a chart of their scores.", "constraints": {}}
+
+User query: "how am i doing in my quizzes?"
+Output: {"intent": "track_progress", "reasoning": "User wants an analysis of their quiz performance.", "constraints": {}}
+
+User query: "i need a quiz, 5 mcqs, hard"
+Output: {"intent": "generate_quiz", "reasoning": "User requested a quiz with 5 MCQs and hard difficulty.", "constraints": {"num_mcq": 5, "difficulty": "hard"}}
+
+User query: "help me organize my revision"
+Output: {"intent": "generate_plan", "reasoning": "User wants to organize revision, which means a study plan.", "constraints": {}}
+
+User query: "test for chapter 2, easy"
+Output: {"intent": "generate_quiz", "reasoning": "User wants a test (quiz) for chapter 2, easy difficulty.", "constraints": {"difficulty": "easy"}}
+
+User query: "make answer key for quiz 1"
+Output: {"intent": "generate_answer_key", "reasoning": "User wants an answer key for quiz 1.", "constraints": {"quiz_name": "quiz 1"}}
+
+User query: "i need a last minute revision kit for my exam"
+Output: {"intent": "generate_revision_kit", "reasoning": "User wants a revision kit for last-minute exam prep.", "constraints": {}}
+
+User query: "grade my quiz answers"
+Output: {"intent": "generate_quiz_grade", "reasoning": "User wants to grade quiz answers.", "constraints": {"grading_type": "single"}}
+
+User query: "grade all student answers"
+Output: {"intent": "generate_quiz_grade", "reasoning": "User wants to grade multiple student answers in batch.", "constraints": {"grading_type": "batch"}}
+
+User query: "give me feedback on my graded quiz"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback on a graded quiz.", "constraints": {}}
+
+User query: "can you review my quiz report and tell me what to improve?"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback and improvement suggestions for a graded report.", "constraints": {}}
+
+User query: "give me a feedback for my graded papers"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback for already graded papers.", "constraints": {}}
+
+User query: "review my graded answers"
+Output: {"intent": "generate_feedback", "reasoning": "User wants a review of their graded answers.", "constraints": {}}
+
+User query: "analyze my graded quiz"
+Output: {"intent": "generate_feedback", "reasoning": "User wants analysis of a graded quiz.", "constraints": {}}
+
+User query: "feedback for my marked paper"
+Output: {"intent": "generate_feedback", "reasoning": "User wants feedback for a marked paper.", "constraints": {}}
+
+User query: "asdfghjkl"
+Output: {"intent": "unknown", "reasoning": "Input is gibberish.", "constraints": {}}
+
+---
+User query: "What is nationalism"
+Output:
+
+2025-07-31 17:50:08,261 [INFO] root: [Query Expander] LLM raw response: ```json
+{
+  "intent": "rag_chat",
+  "reasoning": "The user's query is a question seeking information about nationalism.  This indicates a request for information retrieval and explanation using relevant academic context, aligning with the RAG (Retrieval Augmented Generation) chat intent.",
+  "constraints": {}
+}
+```
+2025-07-31 17:50:08,261 [INFO] root: [Query Expander] LLM intent: rag_chat, reasoning: The user's query is a question seeking information about nationalism.  This indicates a request for information retrieval and explanation using relevant academic context, aligning with the RAG (Retrieval Augmented Generation) chat intent., constraints: {}
+2025-07-31 17:50:08,262 [INFO] root: [Query Expander] Returning state: {'input': 'What is nationalism', 'query': 'What is nationalism', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None, 'intent': 'rag_chat', 'reasoning': "The user's query is a question seeking information about nationalism.  This indicates a request for information retrieval and explanation using relevant academic context, aligning with the RAG (Retrieval Augmented Generation) chat intent.", 'constraints': {}, 'revised_message': 'What is nationalism'}
+2025-07-31 17:50:08,263 [INFO] root: [Intent Router] Full state: {'input': 'What is nationalism', 'query': 'What is nationalism', 'uploaded_files': ['Data/Upload\\NCERT-Class-10-History.pdf'], 'collection': Collection(name=pdf_chunks), 'embedder': SentenceTransformer(
+  (0): Transformer({'max_seq_length': 256, 'do_lower_case': False}) with Transformer model: BertModel 
+  (1): Pooling({'word_embedding_dimension': 384, 'pooling_mode_cls_token': False, 'pooling_mode_mean_tokens': True, 'pooling_mode_max_tokens': False, 'pooling_mode_mean_sqrt_len_tokens': False, 'pooling_mode_weightedmean_tokens': False, 'pooling_mode_lasttoken': False, 'include_prompt': True})
+  (2): Normalize()
+), 'total_chunks': 1, 'textbook': 'Data/Upload\\NCERT-Class-10-History.pdf', 'context_match_source': 'default_first', 'most_recent_question': None, 'intent': 'rag_chat', 'reasoning': "The user's query is a question seeking information about nationalism.  This indicates a request for information retrieval and explanation using relevant academic context, aligning with the RAG (Retrieval Augmented Generation) chat intent.", 'constraints': {}, 'revised_message': 'What is nationalism'}
+2025-07-31 17:50:08,263 [INFO] root: [Intent Router] Extracted intent: rag_chat
+2025-07-31 17:50:08,288 [ERROR] chromadb.telemetry.product.posthog: Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+2025-07-31 17:52:30,862 [INFO] root: [Response Node] Response: Output from 'rag_chat_node':
+
+Based on the provided text, nationalism is a force that brought about sweeping changes in the political and mental world of Europe, resulting in the emergence of the nation-state in place of multi-national dynastic empires.  A nation-state is one in which the majority of its citizens, not just its rulers, develop a sense of common identity and shared history or descent.  This commonality wasn't inherent but forged through struggles and the actions of leaders and common people.  Nationalism's association with democracy and revolution shifted over time, becoming more aligned with state power and political dominance in later periods.

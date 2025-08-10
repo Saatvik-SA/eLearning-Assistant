@@ -8,11 +8,13 @@ import os
 
 from Utilities.PDF import extract_text_from_pdf_path
 from Utilities.Core import prepare_academic_context
+from Nodes.agent_state import AgentState, update_agent_state
 
-def run_answer_key_generator():
+def run_answer_key_generator(state: AgentState) -> AgentState:
     """
     Extracts correct answers from a quiz file in Data/Upload and exports them to a PDF in Data/Output,
     using textbook context embedded via `prepare_academic_context()`.
+    Accepts and returns AgentState.
     """
 
     # Step 1: Locate a quiz file with "quiz" in its name
@@ -24,7 +26,12 @@ def run_answer_key_generator():
             break
 
     if not quiz_file:
-        raise FileNotFoundError("No quiz file with 'quiz' in name (.pdf or .txt) found in Data/Upload.")
+        return update_agent_state(
+            state,
+            status="error",
+            error="No quiz file with 'quiz' in name (.pdf or .txt) found in Data/Upload.",
+            tool_name="answer_key_node"
+        )
 
     # Step 2: Extract quiz text
     if quiz_file.endswith(".pdf"):
@@ -70,6 +77,16 @@ Quiz:
     base_name = os.path.splitext(os.path.basename(quiz_file))[0]
     output_file = os.path.join("Data/Output", f"{base_name}_answer_key.pdf")
     export_answer_key_to_pdf(answer_text, output_file)
+    
+    # Update state with success
+    return update_agent_state(
+        state,
+        status="success",
+        result=f"Answer key generated successfully! Saved as: {output_file}",
+        output_file=output_file,
+        answer_key_text=answer_text,
+        tool_name="answer_key_node"
+    )
 
 
 def export_answer_key_to_pdf(answer_text, filename="Generated_Answer_Key.pdf"):
